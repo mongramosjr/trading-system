@@ -89,7 +89,7 @@ Also create a regular user to test the API endpoints
 
 ```bash
 python manage.py create_user username email@example.com password
-```bash
+```
 
 
 (1) Place an Order
