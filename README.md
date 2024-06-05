@@ -121,6 +121,6 @@ username,GOOGL,sell,5
 
 (3) Retrieval of Total Investment
 ```bash
-curl -X GET "http://127.0.0.1:8000/api/orders/total_investment/?stock_id=AAPL" \
+curl -X GET "http://127.0.0.1:8000/api/orders/total_investment/?stock=AAPL" \
      -u username:password
 ```

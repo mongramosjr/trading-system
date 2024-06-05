@@ -10,9 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum, F
 from django.shortcuts import get_object_or_404
 import csv
-import logging
+import logging, copy
 
-logger = logging.getLogger('trading_system_console_log')
+logger = logging.getLogger('django')
 
 
 # Create your views here.
@@ -30,22 +30,38 @@ class OrderViewSet(viewsets.ModelViewSet):
         record the quantity of the stock the user wants to buy or sell.
 
         Args:
-            Order
+            quantity, order_type, stock
 
         Returns:
+            error message or {'stock': stock, 'price': price, 'amount':amount}
             HTTP status code 201 or 400 or 404 if stock is non-existent
         """
+        quantity = request.data.get('quantity')
+        order_type = request.data.get('order_type')
         stock_id = request.data.get('stock')
         stock = get_object_or_404(Stock, id=stock_id)
-
+        amount = float(quantity)*float(stock.price)
         user = request.user
 
+        logger.debug(f'Processing request data {repr(request.data)} from {repr(request.user)} ')
+        # NOTE: serializer always returns below error, it couldn't get the value from auth 
+        # {"price":["This field is required.", "user": "This field is required."]
+        request_data = copy.deepcopy(request.data)
+
+        # if price is not included in the request data
+        if 'price' not in request_data:
+            request_data["price"] = stock.price
+
+        user_db = User.objects.get(username=request.user.username)
+        request_data["user"] = user_db.id
+
         # Instantiate the serializer with the request data
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request_data)
         if serializer.is_valid():
             # Save the order, associating it with the current user and stock price
-            serializer.save(user=user, price=stock.price)
-            return Response({'stock': stock_id, 'user': user.get_username()}, status=status.HTTP_201_CREATED)
+            serializer.save(user=user)
+            return Response({'stock': stock_id, 'price': stock.price, 'amount':amount}, 
+                            status=status.HTTP_201_CREATED)
         else:
             # Return errors if the serializer is not valid
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -84,15 +100,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         Order value is calculated by multiplying quantity and stock price.
 
         Args:
-            user credential and stock id 
+            user credential and stock
 
         Returns:
-            stock id and the total value.
+            stock and the total value.
         """
         user = request.user
-        stock_id = request.query_params.get('stock_id')
+        stock_id = request.query_params.get('stock')
         stock = get_object_or_404(Stock, id=stock_id)
         total_value = Order.objects.filter(user=user, stock=stock).aggregate(
             total=Sum(F('quantity') * F('price'))
         )['total']
-        return Response({'stock_id': stock_id,'total_value': total_value}, status=status.HTTP_200_OK)
+        return Response({'stock': stock_id,'total_value': total_value}, status=status.HTTP_200_OK)

@@ -37,7 +37,7 @@ class TradesTestCase(TestCase):
 
     def test_total_investment(self):
         Order.objects.create(user=self.user, stock=self.stock, order_type='buy', quantity=10, price=150.00)
-        response = self.client.get(reverse('order-total-investment'), {'stock_id': self.stock.id})
+        response = self.client.get(reverse('order-total-investment'), {'stock': self.stock.id})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['total_value'], 1500.00)
 
