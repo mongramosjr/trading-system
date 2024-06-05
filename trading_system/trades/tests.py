@@ -43,9 +43,14 @@ class TradesTestCase(TestCase):
 
     
     def test_bulk_trade(self):
+        headers = ['user','stock','order_type','quantity']
+        quantity = 20
         csv_file = io.StringIO()
         writer = csv.writer(csv_file)
-        writer.writerow([self.user.username, self.stock.id, 'buy', 20])
+        # Write the header row
+        writer.writerow(headers)
+        # Write a single order
+        writer.writerow([self.user.username, self.stock.id, 'buy', quantity])
         csv_file.seek(0)
         print(csv_file)
         response = self.client.post(
@@ -58,4 +63,4 @@ class TradesTestCase(TestCase):
         order = Order.objects.get()
         self.assertEqual(order.user, self.user)
         self.assertEqual(order.stock, self.stock)
-        self.assertEqual(order.quantity, 20)
+        self.assertEqual(order.quantity, quantity)

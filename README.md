@@ -108,12 +108,14 @@ curl -X POST http://127.0.0.1:8000/api/orders/place_order/ \
 ```bash
 curl -X POST http://127.0.0.1:8000/api/orders/bulk_trade/ \
      -H "Content-Type: multipart/form-data" \
+     -H "Content-Disposition: attachment; filename=bulk_trade.csv" \
      -F "file=@/path/to/your/file.csv" \
      -u username:password
 ```
 
-Ensure the csv file has this format [username,stock_id,buy_or_sell,amount]
+Ensure the csv file has this format and header [user,stock,order_type,quantity]
 ```python
+user,stock,order_type,quantity
 username,TSLA,buy,10
 username,RAMOS,sell,5
 username,GOOGL,sell,5

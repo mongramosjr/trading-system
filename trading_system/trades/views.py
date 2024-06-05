@@ -4,7 +4,7 @@ from .models import Stock, Order
 from .serializers import StockSerializer, OrderSerializer
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FileUploadParser
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum, F
@@ -67,7 +67,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    @action(detail=False, methods=['post'], parser_classes=[FileUploadParser])
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser])
     def bulk_trade(self, request):
         """
         Accepts a CSV upload to place trades in bulk.
@@ -79,17 +79,25 @@ class OrderViewSet(viewsets.ModelViewSet):
             HTTP status code 201
         """
         file_obj = request.data['file']
-        csv_reader = csv.reader(file_obj.read().decode('utf-8').splitlines())
+        csv_reader = csv.DictReader(file_obj.read().decode('utf-8').splitlines())
+        user = request.user
+
+        logger.debug(f'Processing request from {repr(request.user)} ')
+        
         for row in csv_reader:
-            user = User.objects.get(username=row[0])
-            stock = Stock.objects.get(id=row[1])
+            logger.debug(f'Processing csv {repr(row)} ')
+
+            user = User.objects.get(username=row['user'])
+            stock = get_object_or_404(Stock, id=row['stock'])
+            
             Order.objects.create(
                 user=user,
                 stock=stock,
-                order_type=row[2],
-                quantity=row[3],
+                order_type=row['order_type'],
+                quantity=row['quantity'],
                 price=stock.price
             )
+            
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'])

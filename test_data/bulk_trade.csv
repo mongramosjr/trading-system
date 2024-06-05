@@ -1,2 +1,3 @@
+user,stock,order_type,quantity
 username,AAPL,buy,10
 username,GOOGL,sell,5
