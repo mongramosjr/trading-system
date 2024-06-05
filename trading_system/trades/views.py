@@ -42,16 +42,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         stock = get_object_or_404(Stock, id=stock_id)
         amount = float(quantity)*float(stock.price)
         user = request.user
+        price = stock.price
 
         logger.debug(f'Processing request data {repr(request.data)} from {repr(request.user)} ')
         # NOTE: serializer always returns below error, it couldn't get the value from auth 
         # {"price":["This field is required.", "user": "This field is required."]
         request_data = copy.deepcopy(request.data)
 
-        # if price is not included in the request data
+        # if price key is not included in the request data
         if 'price' not in request_data:
             request_data["price"] = stock.price
+        else:
+            price = request_data["price"]
 
+        # get the pk of the user
         user_db = User.objects.get(username=request.user.username)
         request_data["user"] = user_db.id
 
@@ -60,7 +64,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             # Save the order, associating it with the current user and stock price
             serializer.save(user=user)
-            return Response({'stock': stock_id, 'price': stock.price, 'amount':amount}, 
+            return Response({'stock': stock_id, 'price': price, 'amount':amount}, 
                             status=status.HTTP_201_CREATED)
         else:
             # Return errors if the serializer is not valid
@@ -111,7 +115,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             user credential and stock
 
         Returns:
-            stock and the total value.
+            error message or {'stock': stock, 'total_value': total_value}
+            HTTP status code 200
         """
         user = request.user
         stock_id = request.query_params.get('stock')

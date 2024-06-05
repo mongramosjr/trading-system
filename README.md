@@ -44,14 +44,14 @@ python manage.py migrate
 python manage.py update_stocks
 ```
 
-Verify that the stock data is populated and updated correctly via admin interface (see steps #9 on creating super user) or checking the sqlite3 database. sqlite3 database is located in the main folder of Django projec t, named *db.sqlite3*
+Verify that the stock data is populated and updated correctly via admin interface (see steps #9 on creating super user) or checking the sqlite3 database. sqlite3 database is located in the main folder of Django project, named *db.sqlite3*
 
 ## 6. Schedule the Command Using Cron Job
 
 Two cron jobs are configured to process CSV files in the bulk_trades directory located at /path/to/your/git_project/trading_system and place bulk trades.
 
-*parse_csv*: This cron job focuses on a single CSV file named bulk_trades.csv within the directory. It parses the data in the file and uses the information to initiate trades in bulk.
-*process_bulk_trades*: This cron job handles multiple CSV files located in the same directory. It iterates through each file, parses its data, and uses the information to execute bulk trades.
+* *parse_csv*: This cron job focuses on a single CSV file named bulk_trades.csv within the directory. It parses the data in the file and uses the information to initiate trades in bulk.
+* *process_bulk_trades*: This cron job handles multiple CSV files located in the same directory. It iterates through each file, parses its data, and uses the information to execute bulk trades.
 
 A dedicated cron job keeps stock prices up-to-date, it is *update_stocks*. This job retrieves the latest prices for all tracked stocks.
 

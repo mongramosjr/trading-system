@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create models here that meet the project's needs..
+# Create models here that meet the project's needs.
 
 # Stocks will have an id, name, and price.
 # ID in Austtralian Stock Exchange consists of a 3-4 letters 
@@ -14,7 +14,6 @@ class Stock(models.Model):
     def __str__(self):
         return self.name
 
-# Order behaves like a double entry accounting.
 # Users with ability to place orders to buy and sell stocks
 # uses the Django default model for user with authentication.
 class Order(models.Model):
