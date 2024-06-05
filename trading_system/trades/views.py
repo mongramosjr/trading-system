@@ -10,6 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Sum, F
 from django.shortcuts import get_object_or_404
 import csv
+import logging
+
+logger = logging.getLogger('trading_system_console_log')
+
 
 # Create your views here.
 
@@ -19,19 +23,33 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
-    def place_order(self, serializer):
+    @action(detail=False, methods=['post'])
+    def place_order(self, request):
         """
         Placing of order by users. When an order is placed, 
-        Record the quantity of the stock the user wants to buy or sell
+        record the quantity of the stock the user wants to buy or sell.
+
         Args:
             Order
 
         Returns:
-            HTTP status code 201
-
+            HTTP status code 201 or 400 or 404 if stock is non-existent
         """
-        stock = get_object_or_404(Stock, id=self.request.data['stock'])
-        serializer.save(user=self.request.user, price=stock.price)
+        stock_id = request.data.get('stock')
+        stock = get_object_or_404(Stock, id=stock_id)
+
+        user = request.user
+
+        # Instantiate the serializer with the request data
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            # Save the order, associating it with the current user and stock price
+            serializer.save(user=user, price=stock.price)
+            return Response({'stock': stock_id, 'user': user.get_username()}, status=status.HTTP_201_CREATED)
+        else:
+            # Return errors if the serializer is not valid
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     @action(detail=False, methods=['post'], parser_classes=[FileUploadParser])
     def bulk_trade(self, request):

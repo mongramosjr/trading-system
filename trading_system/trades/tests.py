@@ -26,7 +26,7 @@ class TradesTestCase(TestCase):
 
 
     def test_place_order(self):
-        response = self.client.post(reverse('order-list'), self.order_data)
+        response = self.client.post(reverse('order-place-order'), self.order_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Order.objects.count(), 1)
         order = Order.objects.get()
