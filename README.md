@@ -66,11 +66,11 @@ Run the tests using Django's test runner
 python manage.py test trades
 ```
 
-There are three tests in the trading_system/trades/tests.py
+There are three tests in the *trading_system/trades/tests.py*
 
-test_place_order: Tests if an order can be placed successfully.
-test_bulk_trade: Tests bulk uploading of orders via a CSV file.
-test_total_investment: Tests retrieving the total value invested in a single stock by a user.
+* *test_place_order*: Tests if an order can be placed successfully.
+* *test_bulk_trade*: Tests bulk uploading of orders via a CSV file.
+* *test_total_investment*: Tests retrieving the total value invested in a single stock by a user.
 
 ## 8. Running the API Endpoints
 Start the server with
