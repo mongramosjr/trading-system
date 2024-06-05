@@ -79,9 +79,18 @@ python manage.py runserver
 ```
 ## 9. Testing the API Endpoints
 To test all the API endpoints using the terminal, use the tool curl.
-But first you need to create a user to easily manage authentication and permissions.
+But first you need to create an admin user to easily manage authentication and permissions.
 
+```bash
+python manage.py createsuperuser
+```
+
+Also create a regular user to test the API endpoints
+
+```bash
 python manage.py create_user username email@example.com password
+```bash
+
 
 (1) Place an Order
 ```bash
@@ -110,7 +119,7 @@ username,RAMOS,sell,5
 username,GOOGL,sell,5
 ```
 
-(3) Retrieve of Total Investment
+(3) Retrieval of Total Investment
 ```bash
 curl -X GET "http://127.0.0.1:8000/api/orders/total_investment/?stock_id=AAPL" \
      -u username:password
