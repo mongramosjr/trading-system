@@ -50,7 +50,15 @@ Verify that the stock data is populated and updated correctly via admin interfac
 
 Two cron jobs are configured to process CSV files in the bulk_trades directory located at /path/to/your/git_project/trading_system and place bulk trades.
 
-* *parse_csv*: This cron job focuses on a single CSV file named bulk_trades.csv within the directory. It parses the data in the file and uses the information to initiate trades in bulk.
+* *parse_csv*: This cron job focuses on a single CSV file within the directory. It parses the data in the file and uses the information to initiate trades in bulk. There is an existing csv file named *bulk_trades.csv*. You may place your own csv file at bulk_trades directory and ensure it follows the following format, first row is the header.
+
+```python
+user,stock,order_type,quantity
+username,TSLA,buy,10
+othername,RAMOS,sell,5
+somename,GOOGL,sell,46
+```
+
 * *process_bulk_trades*: This cron job handles multiple CSV files located in the same directory. It iterates through each file, parses its data, and uses the information to execute bulk trades.
 
 A dedicated cron job keeps stock prices up-to-date, it is *update_stocks*. This job retrieves the latest prices for all tracked stocks.
@@ -62,7 +70,7 @@ crontab -e
 ```
 
 ```python
-0 0 * * * /path/to/your/environment_name/bin/python /path/to/your/git_project/trading_system/manage.py python manage.py parse_csv file.csv
+0 0 * * * /path/to/your/environment_name/bin/python /path/to/your/git_project/trading_system/manage.py python manage.py parse_csv bulk_trades.csv
 
 0 0 * * * /path/to/your/environment_name/bin/python /path/to/your/git_project/trading_system/manage.py python manage.py process_bulk_trades 
 
